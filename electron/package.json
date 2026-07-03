@@ -1,0 +1,20 @@
+{
+  "name": "synvix",
+  "version": "1.0.0",
+  "description": "Synvix — real-time AI interview assistant",
+  "author": "Synvix",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "tsc && npx wait-on http://localhost:5173 && electron .",
+    "build": "tsc",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@synvix/shared": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+html {
+  background: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  @apply antialiased;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  user-select: none;
+}
+
+.selectable {
+  user-select: text;
+}
+
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Glass panels — monochrome */
+.glass-panel {
+  background: rgba(12, 12, 12, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+}
+
+.glass-surface {
+  background: rgba(8, 8, 8, 0.65);
+  backdrop-filter: blur(20px);
+}
+
+/* Buttons */
+.synvix-btn {
+  @apply rounded-lg transition-all;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.9);
+}
+.synvix-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.synvix-btn-active {
+  background: rgba(255, 255, 255, 0.92);
+  color: rgba(0, 0, 0, 0.9);
+  border-color: transparent;
+}
+.synvix-btn-danger {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+}
+.synvix-btn-danger:hover {
+  background: rgba(255, 80, 80, 0.25);
+}
+
+.synvix-input {
+  @apply rounded-md px-2 py-1 outline-none transition-colors;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+}
+.synvix-input:focus {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Native select dropdowns — OS popup is light; keep readable options */
+.synvix-select {
+  @apply rounded-md px-2 py-1 outline-none transition-colors;
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #111111;
+}
+.synvix-select:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.synvix-select option {
+  background: #ffffff;
+  color: #111111;
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }

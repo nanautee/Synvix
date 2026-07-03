@@ -1,0 +1,32 @@
+{
+  "name": "synvix",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "server",
+    "client",
+    "electron"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"npm run dev -w server\" \"npm run dev -w client\"",
+    "dev:electron": "concurrently -n server,client,electron -c blue,green,magenta \"npm run dev -w server\" \"npm run dev -w client\" \"npm run dev -w electron\"",
+    "test": "npm run test -w server && npm run test -w client",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w client && npm run build -w electron",
+    "sync-version": "node scripts/sync-version.mjs",
+    "build:prod": "npm run sync-version && npm run build -w shared && npm run build -w server && npm run build:bundle -w server && npm run build:electron -w client && npm run build -w electron",
+    "dist": "npm run build:prod && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win -c electron/electron-builder.json",
+    "dist:dir": "npm run build:prod && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win --dir -c electron/electron-builder.json",
+    "start": "npm run start -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "35.7.5",
+    "electron-builder": "^25.1.8",
+    "app-builder-bin": "^5.0.0-alpha.10"
+  },
+  "build": {
+    "extends": "electron/electron-builder.json"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "appId": "com.synvix.app",
+  "productName": "Synvix",
+  "electronVersion": "35.7.5",
+  "copyright": "Copyright © 2026",
+  "directories": {
+    "app": "electron",
+    "output": "release",
+    "buildResources": "electron/assets"
+  },
+  "files": [
+    "dist/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "client/dist",
+      "to": "client",
+      "filter": ["**/*"]
+    },
+    {
+      "from": "server/dist/bundle.js",
+      "to": "server/bundle.js"
+    },
+    {
+      "from": "server/.env.example",
+      "to": ".env.example"
+    }
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "artifactName": "Synvix-Setup-${version}.${ext}",
+    "signAndEditExecutable": false
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "allowElevation": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Synvix"
+  },
+  "asar": true,
+  "compression": "maximum",
+  "npmRebuild": false,
+  "buildDependenciesFromSource": false
+}
