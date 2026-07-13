@@ -35,7 +35,7 @@ jobs:
       - run: npm run build:prod
 
       - name: Build installer
-        run: npx electron-builder --${{ matrix.platform }} -c electron/electron-builder.json
+        run: npx electron-builder --${{ matrix.platform }} --publish never -c electron/electron-builder.json
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
@@ -43,7 +43,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.platform }}
-          path: release/*.{exe,dmg,AppImage}
+          path: |
+            release/*.exe
+            release/*.dmg
+            release/*.AppImage
           if-no-files-found: warn
 
   release:
