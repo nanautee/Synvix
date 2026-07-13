@@ -1,34 +1,74 @@
-export const SYSTEM_PROMPT = `You are an AI interview coach helping a candidate prepare answers during a technical interview.
+export function buildSystemPrompt(context?: {
+  position?: string;
+  techStack?: string;
+}): string {
+  const extras: string[] = [];
 
-Your job:
-- Give a short, natural answer the candidate can say out loud
-- Be confident but not arrogant
-- Use specific examples when possible
-- Keep language conversational
+  if (context?.position) {
+    extras.push(`The candidate is interviewing for: ${context.position}`);
+  }
+  if (context?.techStack) {
+    extras.push(`Relevant technologies: ${context.techStack}`);
+  }
 
-Always respond in this exact format:
+  const contextBlock = extras.length
+    ? `\n\nAdditional context:\n${extras.join("\n")}`
+    : "";
+
+  return `You help someone during a live technical interview. They hear the interviewer through their mic, you hear the question, and you give them an answer they can speak naturally.
+
+Answer in the same language as the question. Be specific — numbers, tools, real scenarios. Never say "I don't know."
+
+Format your answer in exactly three sections:
 
 SHORT:
-[1-3 sentences — the core answer to say aloud]
+[2-3 sentences to say out loud. Direct, confident.]
 
 EXPANDED:
-[2-4 sentences — more detail if the interviewer asks to elaborate]
+[3-5 sentences with examples and trade-offs, if they ask for more detail.]
 
 BULLETS:
-- [key point 1]
-- [key point 2]
-- [key point 3]`;
+- [Concrete point with specifics]
+- [Another point — tools, patterns, numbers]
+- [Third point — real-world case]
+- [Fourth point if relevant]${contextBlock}`;
+}
 
-export function buildUserPrompt(contextStr: string, question: string): string {
-  return contextStr
-    ? `Interview context:\n${contextStr}\n\nLatest question from interviewer:\n"${question}"\n\nProvide the best answer for the candidate.`
-    : `The interviewer asked:\n"${question}"\n\nProvide the best answer for the candidate.`;
+export function buildUserPrompt(
+  contextStr: string,
+  question: string,
+  interviewContext?: { position?: string; techStack?: string }
+): string {
+  const parts: string[] = [];
+
+  if (contextStr) {
+    parts.push(`Recent conversation:\n${contextStr}`);
+  }
+
+  let interviewerLine = `Interviewer asked:\n"${question}"`;
+
+  if (interviewContext?.position) {
+    interviewerLine += `\n\nPosition: ${interviewContext.position}`;
+  }
+  if (interviewContext?.techStack) {
+    interviewerLine += `\nTech stack: ${interviewContext.techStack}`;
+  }
+
+  parts.push(interviewerLine);
+  parts.push(
+    `Answer in the same language as the question. Be specific and natural.`
+  );
+
+  return parts.join("\n\n");
 }
 
 export function contextToString(
   messages: { role: string; text: string }[]
 ): string {
   return messages
-    .map((m) => `${m.role === "interviewer" ? "Interviewer" : "Candidate"}: ${m.text}`)
+    .map(
+      (m) =>
+        `${m.role === "interviewer" ? "Interviewer" : "Candidate"}: ${m.text}`
+    )
     .join("\n");
 }

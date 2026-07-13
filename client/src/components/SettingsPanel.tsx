@@ -1,6 +1,13 @@
 import type { UserConfig } from "@synvix/shared";
-import { LLM_PROVIDER_LABELS } from "@synvix/shared";
-import type { LLMProvider, STTProvider, AudioSource } from "@synvix/shared";
+import {
+  LLM_PROVIDER_LABELS,
+  LLM_MODELS,
+  STT_MODELS,
+  TIER_LABELS,
+  type LLMProvider,
+  type STTProvider,
+  type AudioSource,
+} from "@synvix/shared";
 import type { AudioDeviceInfo } from "@synvix/shared";
 import { useAudioDevices } from "../hooks/useAudioDevices";
 
@@ -14,6 +21,25 @@ interface Props {
 
 export function SettingsPanel({ config, onChange, onSave, saving, saved }: Props) {
   const { inputs, outputs, refresh } = useAudioDevices();
+
+  const llmModels = LLM_MODELS[config.llmProvider] || [];
+  const sttModels = STT_MODELS[config.sttProvider] || [];
+
+  const handleProviderChange = (provider: LLMProvider) => {
+    const models = LLM_MODELS[provider];
+    onChange({
+      llmProvider: provider,
+      llmModel: models[0]?.id || "",
+    });
+  };
+
+  const handleSTTProviderChange = (provider: STTProvider) => {
+    const models = STT_MODELS[provider];
+    onChange({
+      sttProvider: provider,
+      sttModel: models[0]?.id || "",
+    });
+  };
 
   return (
     <section className="no-drag glass-panel rounded-xl p-3 space-y-3 text-white/80">
@@ -31,17 +57,68 @@ export function SettingsPanel({ config, onChange, onSave, saving, saved }: Props
         <ApiKeyField label="OpenAI" value={config.openaiApiKey} onChange={(v) => onChange({ openaiApiKey: v })} />
       </div>
 
-      {/* Providers */}
-      <div className="grid grid-cols-2 gap-2">
-        <SelectField label="LLM" value={config.llmProvider} onChange={(v) => onChange({ llmProvider: v as LLMProvider })}>
-          {(Object.keys(LLM_PROVIDER_LABELS) as LLMProvider[]).map((p) => (
-            <option key={p} value={p}>{LLM_PROVIDER_LABELS[p]}</option>
-          ))}
-        </SelectField>
-        <SelectField label="STT" value={config.sttProvider} onChange={(v) => onChange({ sttProvider: v as STTProvider })}>
-          <option value="groq">Groq</option>
-          <option value="openai">OpenAI</option>
-        </SelectField>
+      {/* LLM Provider + Model */}
+      <div className="space-y-2">
+        <p className="text-[9px] text-white/35 uppercase tracking-wider">LLM — Answer Generation</p>
+        <div className="grid grid-cols-2 gap-2">
+          <SelectField label="Provider" value={config.llmProvider} onChange={(v) => handleProviderChange(v as LLMProvider)}>
+            {(Object.keys(LLM_PROVIDER_LABELS) as LLMProvider[]).map((p) => (
+              <option key={p} value={p}>{LLM_PROVIDER_LABELS[p]}</option>
+            ))}
+          </SelectField>
+          <SelectField label="Model" value={config.llmModel} onChange={(v) => onChange({ llmModel: v })}>
+            {llmModels.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}{m.tier ? ` (${TIER_LABELS[m.tier]})` : ""}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+      </div>
+
+      {/* STT Provider + Model */}
+      <div className="space-y-2">
+        <p className="text-[9px] text-white/35 uppercase tracking-wider">STT — Speech to Text</p>
+        <div className="grid grid-cols-2 gap-2">
+          <SelectField label="Provider" value={config.sttProvider} onChange={(v) => handleSTTProviderChange(v as STTProvider)}>
+            <option value="groq">Groq</option>
+            <option value="openai">OpenAI</option>
+          </SelectField>
+          <SelectField label="Model" value={config.sttModel} onChange={(v) => onChange({ sttModel: v })}>
+            {sttModels.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}{m.tier ? ` (${TIER_LABELS[m.tier]})` : ""}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+      </div>
+
+      {/* Interview Context */}
+      <div className="space-y-2">
+        <p className="text-[9px] text-white/35 uppercase tracking-wider">Interview Context</p>
+        <div className="space-y-1.5">
+          <label className="space-y-0.5 block">
+            <span className="text-[9px] text-white/40">Position / Role</span>
+            <input
+              type="text"
+              value={config.position}
+              onChange={(e) => onChange({ position: e.target.value })}
+              placeholder="e.g. Senior Frontend Developer"
+              className="synvix-input w-full text-[10px]"
+            />
+          </label>
+          <label className="space-y-0.5 block">
+            <span className="text-[9px] text-white/40">Tech Stack</span>
+            <input
+              type="text"
+              value={config.techStack}
+              onChange={(e) => onChange({ techStack: e.target.value })}
+              placeholder="e.g. React, TypeScript, Node.js, PostgreSQL"
+              className="synvix-input w-full text-[10px]"
+            />
+          </label>
+        </div>
       </div>
 
       {/* Audio devices */}

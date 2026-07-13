@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import type { TranscriptMessage } from "@synvix/shared";
-import { SYSTEM_PROMPT, buildUserPrompt, contextToString } from "./prompt";
+import { buildSystemPrompt, buildUserPrompt, contextToString } from "./prompt";
+import type { InterviewContext } from "./provider";
 import { registerProviderReset } from "../credentials";
 
 let client: OpenAI | null = null;
@@ -20,15 +21,20 @@ registerProviderReset(() => {
 
 export async function* streamOpenAIAnswer(
   context: TranscriptMessage[],
-  question: string
+  question: string,
+  interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
   const openai = getClient();
-  const userPrompt = buildUserPrompt(contextToString(context), question);
+  const userPrompt = buildUserPrompt(
+    contextToString(context),
+    question,
+    interviewContext
+  );
 
   const stream = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+    model: interviewContext?.model || process.env.OPENAI_MODEL || "gpt-4o-mini",
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: buildSystemPrompt(interviewContext) },
       { role: "user", content: userPrompt },
     ],
     stream: true,

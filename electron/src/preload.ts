@@ -10,6 +10,7 @@ export interface ElectronAPI {
   loadConfig: () => Promise<Record<string, unknown>>;
   saveConfig: (config: Record<string, unknown>) => Promise<{ ok: boolean }>;
   getConfigPath: () => Promise<string>;
+  captureScreenshot: () => Promise<{ data?: string; width?: number; height?: number; error?: string }>;
 }
 
 const electronAPI: ElectronAPI = {
@@ -22,6 +23,7 @@ const electronAPI: ElectronAPI = {
   loadConfig: () => ipcRenderer.invoke("config:load"),
   saveConfig: (config) => ipcRenderer.invoke("config:save", config),
   getConfigPath: () => ipcRenderer.invoke("config:get-path"),
+  captureScreenshot: () => ipcRenderer.invoke("capture-screenshot"),
 };
 
 contextBridge.exposeInMainWorld("electronAPI", electronAPI);

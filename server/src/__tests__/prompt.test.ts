@@ -11,7 +11,7 @@ describe("prompt builders", () => {
   it("buildUserPrompt with context", () => {
     const context = "Interviewer: Tell me about yourself\nCandidate: I am a developer";
     const prompt = buildUserPrompt(context, "What is your experience with React?");
-    expect(prompt).toContain("Interview context:");
+    expect(prompt).toContain("Recent conversation:");
     expect(prompt).toContain("What is your experience with React?");
   });
 

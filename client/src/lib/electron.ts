@@ -18,4 +18,5 @@ export interface ElectronAPI {
   loadConfig: () => Promise<UserConfig>;
   saveConfig: (config: UserConfig) => Promise<{ ok: boolean }>;
   getConfigPath: () => Promise<string>;
+  captureScreenshot: () => Promise<{ data?: string; width?: number; height?: number; error?: string }>;
 }

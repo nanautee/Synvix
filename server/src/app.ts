@@ -5,10 +5,12 @@ import { WebSocketServer, WebSocket } from "ws";
 import type { ClientMessage, ServerMessage, SessionConfig } from "@synvix/shared";
 import { ContextBuilder } from "./context/context-builder";
 import { transcribe, validateSTTProvider } from "./stt/provider";
-import { streamAnswer, validateLLMProvider } from "./llm/provider";
+import { streamAnswer, validateLLMProvider, type InterviewContext } from "./llm/provider";
 import { parseAnswer } from "./answer-parser";
 import { mergeConfig, getProviderStatus } from "./config";
 import { applyCredentials } from "./credentials";
+import { TranscriptBuffer } from "./transcript-buffer";
+import { extractTextFromImage } from "./ocr/vision";
 
 export interface AppInstance {
   server: Server;
@@ -46,6 +48,27 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
     let isProcessing = false;
     let lastTranscript = "";
 
+    const onBufferEvent = (event: import("./transcript-buffer").TranscriptBufferEvent) => {
+      if (event.type === "fragment_added") {
+        send(ws, { type: "transcript_pending", fragments: event.fragments });
+      } else if (event.type === "flushed") {
+        send(ws, { type: "transcript_flushed", text: event.text });
+        context.addMessage("interviewer", event.text);
+        send(ws, { type: "transcript", text: event.text, role: "interviewer", isFinal: true });
+        const interviewContext: InterviewContext = {
+          position: config.position,
+          techStack: config.techStack,
+          model: config.llmModel,
+        };
+        generateAndStreamAnswer(ws, context, event.text, config, interviewContext).catch((err) => {
+          const msg = err instanceof Error ? err.message : "LLM processing failed";
+          send(ws, { type: "error", message: msg });
+        });
+      }
+    };
+
+    const buffer = new TranscriptBuffer(onBufferEvent);
+
     send(ws, { type: "status", listening: false, config });
 
     ws.on("message", async (raw) => {
@@ -72,13 +95,67 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
           if (message.config) config = mergeConfig({ ...config, ...message.config });
           isListening = true;
           lastTranscript = "";
+          buffer.clear();
           send(ws, { type: "status", listening: true, config });
           break;
 
         case "stop_listening":
           isListening = false;
+          buffer.flush();
           send(ws, { type: "status", listening: false, config });
           break;
+
+        case "flush_transcript":
+          buffer.flush();
+          break;
+
+        case "screenshot": {
+          try {
+            const mimeType = message.mimeType || "image/png";
+            const text = await extractTextFromImage(
+              message.data,
+              mimeType,
+              config.llmProvider
+            );
+
+            if (text) {
+              send(ws, { type: "screenshot_result", text });
+              context.addMessage("interviewer", `[Screenshot content]\n${text}`);
+              send(ws, {
+                type: "transcript",
+                text: `[Screenshot] ${text.substring(0, 100)}${text.length > 100 ? "…" : ""}`,
+                role: "interviewer",
+                isFinal: true,
+              });
+            }
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : "OCR failed";
+            send(ws, { type: "error", message: msg });
+          }
+          break;
+        }
+
+        case "text_input": {
+          const text = message.text.trim();
+          if (!text) return;
+
+          context.addMessage("interviewer", text);
+          send(ws, { type: "transcript", text, role: "interviewer", isFinal: true });
+
+          try {
+            validateLLMProvider(config.llmProvider);
+            const interviewContext: InterviewContext = {
+              position: config.position,
+              techStack: config.techStack,
+              model: config.llmModel,
+            };
+            await generateAndStreamAnswer(ws, context, text, config, interviewContext);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : "Processing failed";
+            send(ws, { type: "error", message: msg });
+          }
+          break;
+        }
 
         case "user_speech":
           if (!message.text.trim()) return;
@@ -97,23 +174,13 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
           isProcessing = true;
           try {
             validateSTTProvider(config.sttProvider);
-            validateLLMProvider(config.llmProvider);
 
-            const buffer = Buffer.from(message.data, "base64");
-            const text = await transcribe(config.sttProvider, buffer, message.mimeType);
+            const audioBuffer = Buffer.from(message.data, "base64");
+            const text = await transcribe(config.sttProvider, audioBuffer, message.mimeType, config.sttModel);
 
             if (text && text.trim() && text.trim() !== lastTranscript) {
               lastTranscript = text.trim();
-              context.addMessage("interviewer", text.trim());
-
-              send(ws, {
-                type: "transcript",
-                text: text.trim(),
-                role: "interviewer",
-                isFinal: true,
-              });
-
-              await generateAndStreamAnswer(ws, context, text.trim(), config);
+              buffer.add(text.trim());
             }
           } catch (err) {
             const msg = err instanceof Error ? err.message : "Processing failed";
@@ -128,6 +195,7 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
 
     ws.on("close", () => {
       isListening = false;
+      buffer.clear();
     });
   });
 
@@ -152,7 +220,8 @@ async function generateAndStreamAnswer(
   ws: WebSocket,
   context: ContextBuilder,
   question: string,
-  config: SessionConfig
+  config: SessionConfig,
+  interviewContext?: InterviewContext
 ) {
   const send = (message: ServerMessage) => {
     if (ws.readyState === WebSocket.OPEN) {
@@ -164,7 +233,12 @@ async function generateAndStreamAnswer(
 
   let fullText = "";
   try {
-    const stream = streamAnswer(config.llmProvider, context.getMessages(), question);
+    const stream = streamAnswer(
+      config.llmProvider,
+      context.getMessages(),
+      question,
+      interviewContext
+    );
     for await (const token of stream) {
       fullText += token;
       send({ type: "answer_token", token });

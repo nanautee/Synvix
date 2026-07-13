@@ -33,8 +33,12 @@ const WS_URL =
 function userConfigToSession(c: UserConfig): SessionConfig {
   return {
     llmProvider: c.llmProvider,
+    llmModel: c.llmModel,
     sttProvider: c.sttProvider,
+    sttModel: c.sttModel,
     audioSource: c.audioSource,
+    position: c.position,
+    techStack: c.techStack,
   };
 }
 
@@ -61,6 +65,8 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [configReady, setConfigReady] = useState(!isElectron());
+  const [pendingFragments, setPendingFragments] = useState<string[]>([]);
+  const [textInput, setTextInput] = useState("");
 
   const wsRef = useRef<WebSocket | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -119,6 +125,14 @@ export default function App() {
           break;
         case "transcript":
           setTranscripts((p) => [...p, { role: message.role, text: message.text, timestamp: Date.now() }]);
+          break;
+        case "transcript_pending":
+          setPendingFragments(message.fragments);
+          break;
+        case "transcript_flushed":
+          setPendingFragments([]);
+          break;
+        case "screenshot_result":
           break;
         case "answer_start":
           setIsGenerating(true);
@@ -213,6 +227,37 @@ export default function App() {
     stopStream(streamRef.current);
     streamRef.current = null;
     setListening(false);
+    setPendingFragments([]);
+  };
+
+  const handleFlush = () => {
+    send({ type: "flush_transcript" });
+  };
+
+  const handleTextInput = () => {
+    const text = textInput.trim();
+    if (!text) return;
+    send({ type: "text_input", text });
+    setTextInput("");
+  };
+
+  const handleScreenshot = async () => {
+    if (!inElectron) {
+      setError("Screenshot is only available in the desktop app");
+      return;
+    }
+    try {
+      const result = await getElectronAPI()?.captureScreenshot();
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      if (result?.data) {
+        send({ type: "screenshot", data: result.data, mimeType: "image/png" });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Screenshot failed");
+    }
   };
 
   if (!inElectron) {
@@ -252,16 +297,39 @@ export default function App() {
           </div>
         )}
 
-        <TranscriptPanel messages={transcripts} />
+        <TranscriptPanel messages={transcripts} pendingFragments={pendingFragments} />
         <AnswerPanel answer={answer} streaming={streamingAnswer} isGenerating={isGenerating} />
+
+        {listening && (
+          <div className="shrink-0 flex gap-1.5">
+            <input
+              type="text"
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleTextInput()}
+              placeholder="Type question manually..."
+              className="flex-1 bg-white/5 border border-white/10 rounded-md px-2 py-1 text-[10px] text-white/80 placeholder:text-white/25 outline-none focus:border-white/25"
+            />
+            <button
+              onClick={handleTextInput}
+              disabled={!textInput.trim()}
+              className="synvix-btn px-2 py-1 rounded-md text-[10px] font-medium disabled:opacity-30 synvix-btn-active"
+            >
+              Send
+            </button>
+          </div>
+        )}
       </main>
 
       <footer className="shrink-0 border-t border-white/8 px-2.5 py-2">
         <ControlBar
           listening={listening}
           connected={connected}
+          electronAvailable={inElectron}
           onToggle={() => (listening ? stopListening() : startListening())}
-          onClear={() => { setTranscripts([]); setAnswer(null); setStreamingAnswer(""); setError(null); }}
+          onClear={() => { setTranscripts([]); setAnswer(null); setStreamingAnswer(""); setError(null); setPendingFragments([]); }}
+          onFlush={handleFlush}
+          onScreenshot={handleScreenshot}
           onToggleSettings={() => setShowSettings((s) => !s)}
           settingsOpen={showSettings}
         />

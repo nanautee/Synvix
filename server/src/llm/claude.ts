@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { TranscriptMessage } from "@synvix/shared";
-import { SYSTEM_PROMPT, buildUserPrompt, contextToString } from "./prompt";
+import { buildSystemPrompt, buildUserPrompt, contextToString } from "./prompt";
+import type { InterviewContext } from "./provider";
 import { registerProviderReset } from "../credentials";
 
 let client: Anthropic | null = null;
@@ -20,15 +21,20 @@ registerProviderReset(() => {
 
 export async function* streamClaudeAnswer(
   context: TranscriptMessage[],
-  question: string
+  question: string,
+  interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
   const anthropic = getClient();
-  const userPrompt = buildUserPrompt(contextToString(context), question);
+  const userPrompt = buildUserPrompt(
+    contextToString(context),
+    question,
+    interviewContext
+  );
 
   const stream = anthropic.messages.stream({
-    model: process.env.CLAUDE_MODEL || "claude-3-5-haiku-latest",
+    model: interviewContext?.model || process.env.CLAUDE_MODEL || "claude-3-5-haiku-20241022",
     max_tokens: 600,
-    system: SYSTEM_PROMPT,
+    system: buildSystemPrompt(interviewContext),
     messages: [{ role: "user", content: userPrompt }],
   });
 

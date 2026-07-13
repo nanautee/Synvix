@@ -1,6 +1,7 @@
 import Groq from "groq-sdk";
 import type { TranscriptMessage } from "@synvix/shared";
-import { SYSTEM_PROMPT, buildUserPrompt, contextToString } from "./prompt";
+import { buildSystemPrompt, buildUserPrompt, contextToString } from "./prompt";
+import type { InterviewContext } from "./provider";
 import { registerProviderReset } from "../credentials";
 
 let client: Groq | null = null;
@@ -20,15 +21,20 @@ registerProviderReset(() => {
 
 export async function* streamGroqAnswer(
   context: TranscriptMessage[],
-  question: string
+  question: string,
+  interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
   const groq = getClient();
-  const userPrompt = buildUserPrompt(contextToString(context), question);
+  const userPrompt = buildUserPrompt(
+    contextToString(context),
+    question,
+    interviewContext
+  );
 
   const stream = await groq.chat.completions.create({
-    model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+    model: interviewContext?.model || process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: buildSystemPrompt(interviewContext) },
       { role: "user", content: userPrompt },
     ],
     stream: true,

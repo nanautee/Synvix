@@ -27,7 +27,8 @@ function mimeToExtension(mimeType: string): string {
 
 export async function transcribeWithGroq(
   buffer: Buffer,
-  mimeType: string
+  mimeType: string,
+  model?: string
 ): Promise<string> {
   const groq = getGroqClient();
   const ext = mimeToExtension(mimeType);
@@ -35,10 +36,10 @@ export async function transcribeWithGroq(
 
   const response = await groq.audio.transcriptions.create({
     file,
-    model: process.env.GROQ_STT_MODEL || "whisper-large-v3-turbo",
+    model: model || process.env.GROQ_STT_MODEL || "whisper-large-v3-turbo",
     language: "en",
     prompt:
-      "Technical interview. The interviewer asks questions about programming, experience, and projects.",
+      "Technical interview: programming, system design, algorithms, data structures, software architecture, cloud, databases, APIs, frameworks, DevOps, behavioral questions.",
     response_format: "text",
   });
 

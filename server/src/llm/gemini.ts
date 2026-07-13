@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { TranscriptMessage } from "@synvix/shared";
-import { SYSTEM_PROMPT, buildUserPrompt, contextToString } from "./prompt";
+import { buildSystemPrompt, buildUserPrompt, contextToString } from "./prompt";
+import type { InterviewContext } from "./provider";
 import { registerProviderReset } from "../credentials";
 
 let client: GoogleGenerativeAI | null = null;
@@ -20,15 +21,20 @@ registerProviderReset(() => {
 
 export async function* streamGeminiAnswer(
   context: TranscriptMessage[],
-  question: string
+  question: string,
+  interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
-    systemInstruction: SYSTEM_PROMPT,
+    model: interviewContext?.model || process.env.GEMINI_MODEL || "gemini-2.0-flash",
+    systemInstruction: buildSystemPrompt(interviewContext),
   });
 
-  const userPrompt = buildUserPrompt(contextToString(context), question);
+  const userPrompt = buildUserPrompt(
+    contextToString(context),
+    question,
+    interviewContext
+  );
   const result = await model.generateContentStream(userPrompt);
 
   for await (const chunk of result.stream) {

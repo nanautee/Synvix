@@ -162,3 +162,18 @@ ipcMain.handle("set-opacity", (_e, opacity: number) => {
 
 ipcMain.handle("minimize", () => mainWindow?.minimize());
 ipcMain.handle("close", () => mainWindow?.close());
+
+ipcMain.handle("capture-screenshot", async () => {
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ["screen"],
+      thumbnailSize: { width: 1920, height: 1080 },
+    });
+    if (!sources.length) return { error: "No screen source found" };
+    const thumbnail = sources[0].thumbnail;
+    if (thumbnail.isEmpty()) return { error: "Screenshot is empty" };
+    return { data: thumbnail.toDataURL(), width: thumbnail.getSize().width, height: thumbnail.getSize().height };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Screenshot failed" };
+  }
+});

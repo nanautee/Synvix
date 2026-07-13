@@ -1,8 +1,11 @@
 interface Props {
   listening: boolean;
   connected: boolean;
+  electronAvailable: boolean;
   onToggle: () => void;
   onClear: () => void;
+  onFlush: () => void;
+  onScreenshot: () => void;
   onToggleSettings: () => void;
   settingsOpen: boolean;
 }
@@ -10,8 +13,11 @@ interface Props {
 export function ControlBar({
   listening,
   connected,
+  electronAvailable,
   onToggle,
   onClear,
+  onFlush,
+  onScreenshot,
   onToggleSettings,
   settingsOpen,
 }: Props) {
@@ -25,6 +31,25 @@ export function ControlBar({
         }`}
       >
         {listening ? "Stop" : "Start"}
+      </button>
+
+      {listening && (
+        <button
+          onClick={onFlush}
+          className="synvix-btn px-2 py-1 rounded-md text-[10px] font-medium synvix-btn-active"
+          title="Send question now"
+        >
+          ▶ Send
+        </button>
+      )}
+
+      <button
+        onClick={onScreenshot}
+        disabled={!connected || !electronAvailable}
+        className="synvix-btn w-7 h-7 rounded-md text-[10px] text-white/50 disabled:opacity-30"
+        title={electronAvailable ? "Capture screenshot & extract text" : "Desktop app only"}
+      >
+        📷
       </button>
 
       <button

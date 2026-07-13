@@ -27,7 +27,8 @@ function mimeToExtension(mimeType: string): string {
 
 export async function transcribeAudio(
   buffer: Buffer,
-  mimeType: string
+  mimeType: string,
+  model?: string
 ): Promise<string> {
   const openai = getClient();
   const ext = mimeToExtension(mimeType);
@@ -35,10 +36,10 @@ export async function transcribeAudio(
   const file = await toFile(buffer, `audio.${ext}`, { type: mimeType });
 
   const response = await openai.audio.transcriptions.create({
-    model: "whisper-1",
+    model: model || "whisper-1",
     file,
     language: "en",
-    prompt: "Technical interview conversation. The interviewer asks questions about programming, experience, and projects.",
+    prompt: "Technical interview: programming, system design, algorithms, data structures, software architecture, cloud, databases, APIs, frameworks, DevOps, behavioral questions.",
   });
 
   return response.text;

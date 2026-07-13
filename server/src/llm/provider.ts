@@ -4,23 +4,30 @@ import { streamGroqAnswer } from "./groq";
 import { streamClaudeAnswer } from "./claude";
 import { streamOpenAIAnswer } from "./openai";
 
+export interface InterviewContext {
+  position?: string;
+  techStack?: string;
+  model?: string;
+}
+
 export async function* streamAnswer(
   provider: LLMProvider,
   context: TranscriptMessage[],
-  question: string
+  question: string,
+  interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
   switch (provider) {
     case "gemini":
-      yield* streamGeminiAnswer(context, question);
+      yield* streamGeminiAnswer(context, question, interviewContext);
       break;
     case "groq":
-      yield* streamGroqAnswer(context, question);
+      yield* streamGroqAnswer(context, question, interviewContext);
       break;
     case "claude":
-      yield* streamClaudeAnswer(context, question);
+      yield* streamClaudeAnswer(context, question, interviewContext);
       break;
     case "openai":
-      yield* streamOpenAIAnswer(context, question);
+      yield* streamOpenAIAnswer(context, question, interviewContext);
       break;
     default:
       throw new Error(`Unknown LLM provider: ${provider}`);
