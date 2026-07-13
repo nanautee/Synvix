@@ -37,6 +37,24 @@
     "artifactName": "Synvix-Setup-${version}.${ext}",
     "signAndEditExecutable": false
   },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "artifactName": "Synvix-${version}-${arch}.${ext}"
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64"]
+      }
+    ],
+    "artifactName": "Synvix-${version}.${ext}"
+  },
   "nsis": {
     "oneClick": false,
     "allowToChangeInstallationDirectory": true,
