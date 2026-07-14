@@ -1,4 +1,4 @@
-# Synvix
+# Synvix — Open-Source AI Interview Assistant
 
 Desktop AI assistant for interviews — real-time transcription, multi-LLM answers, **stealth mode** (invisible during screen sharing).
 
