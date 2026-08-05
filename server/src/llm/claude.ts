@@ -5,18 +5,22 @@ import type { InterviewContext } from "./provider";
 import { registerProviderReset } from "../credentials";
 
 let client: Anthropic | null = null;
+let clientBaseUrl = "";
 
-function getClient(): Anthropic {
-  if (!client) {
+function getClient(baseUrl?: string): Anthropic {
+  const normalized = baseUrl?.trim() || "";
+  if (!client || normalized !== clientBaseUrl) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
-    client = new Anthropic({ apiKey });
+    client = new Anthropic({ apiKey, ...(normalized ? { baseURL: normalized } : {}) });
+    clientBaseUrl = normalized;
   }
   return client;
 }
 
 registerProviderReset(() => {
   client = null;
+  clientBaseUrl = "";
 });
 
 export async function* streamClaudeAnswer(
@@ -24,7 +28,7 @@ export async function* streamClaudeAnswer(
   question: string,
   interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
-  const anthropic = getClient();
+  const anthropic = getClient(interviewContext?.baseUrl);
   const userPrompt = buildUserPrompt(
     contextToString(context),
     question,

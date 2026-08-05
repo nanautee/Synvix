@@ -39,6 +39,9 @@ function userConfigToSession(c: UserConfig): SessionConfig {
     audioSource: c.audioSource,
     position: c.position,
     techStack: c.techStack,
+    language: c.language,
+    llmBaseUrl: c.llmBaseUrl,
+    sttBaseUrl: c.sttBaseUrl,
   };
 }
 

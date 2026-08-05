@@ -6,13 +6,15 @@ export async function transcribe(
   provider: STTProvider,
   buffer: Buffer,
   mimeType: string,
-  model?: string
+  model?: string,
+  language?: string,
+  baseUrl?: string
 ): Promise<string> {
   switch (provider) {
     case "groq":
-      return transcribeWithGroq(buffer, mimeType, model);
+      return transcribeWithGroq(buffer, mimeType, model, language, baseUrl);
     case "openai":
-      return transcribeOpenAI(buffer, mimeType, model);
+      return transcribeOpenAI(buffer, mimeType, model, language, baseUrl);
     default:
       throw new Error(`Unknown STT provider: ${provider}`);
   }

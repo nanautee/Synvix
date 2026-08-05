@@ -1,6 +1,7 @@
 export function buildSystemPrompt(context?: {
   position?: string;
   techStack?: string;
+  language?: string;
 }): string {
   const extras: string[] = [];
 
@@ -15,9 +16,13 @@ export function buildSystemPrompt(context?: {
     ? `\n\nAdditional context:\n${extras.join("\n")}`
     : "";
 
+  const languageLine = context?.language
+    ? `\n\nLanguage: always answer in ${context.language}.`
+    : "";
+
   return `You help someone during a live technical interview. They hear the interviewer through their mic, you hear the question, and you give them an answer they can speak naturally.
 
-Answer in the same language as the question. Be specific — numbers, tools, real scenarios. Never say "I don't know."
+Answer in the same language as the question. Be specific — numbers, tools, real scenarios. Never say "I don't know."${languageLine}
 
 Format your answer in exactly three sections:
 
@@ -37,7 +42,7 @@ BULLETS:
 export function buildUserPrompt(
   contextStr: string,
   question: string,
-  interviewContext?: { position?: string; techStack?: string }
+  interviewContext?: { position?: string; techStack?: string; language?: string }
 ): string {
   const parts: string[] = [];
 
@@ -52,6 +57,9 @@ export function buildUserPrompt(
   }
   if (interviewContext?.techStack) {
     interviewerLine += `\nTech stack: ${interviewContext.techStack}`;
+  }
+  if (interviewContext?.language) {
+    interviewerLine += `\nLanguage: ${interviewContext.language}`;
   }
 
   parts.push(interviewerLine);

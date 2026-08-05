@@ -59,6 +59,8 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
           position: config.position,
           techStack: config.techStack,
           model: config.llmModel,
+          language: config.language,
+          baseUrl: config.llmBaseUrl,
         };
         generateAndStreamAnswer(ws, context, event.text, config, interviewContext).catch((err) => {
           const msg = err instanceof Error ? err.message : "LLM processing failed";
@@ -148,6 +150,8 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
               position: config.position,
               techStack: config.techStack,
               model: config.llmModel,
+              language: config.language,
+              baseUrl: config.llmBaseUrl,
             };
             await generateAndStreamAnswer(ws, context, text, config, interviewContext);
           } catch (err) {
@@ -176,7 +180,14 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
             validateSTTProvider(config.sttProvider);
 
             const audioBuffer = Buffer.from(message.data, "base64");
-            const text = await transcribe(config.sttProvider, audioBuffer, message.mimeType, config.sttModel);
+            const text = await transcribe(
+              config.sttProvider,
+              audioBuffer,
+              message.mimeType,
+              config.sttModel,
+              config.language,
+              config.sttBaseUrl
+            );
 
             if (text && text.trim() && text.trim() !== lastTranscript) {
               lastTranscript = text.trim();

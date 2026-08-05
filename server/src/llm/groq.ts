@@ -5,18 +5,22 @@ import type { InterviewContext } from "./provider";
 import { registerProviderReset } from "../credentials";
 
 let client: Groq | null = null;
+let clientBaseUrl = "";
 
-function getClient(): Groq {
-  if (!client) {
+function getClient(baseUrl?: string): Groq {
+  const normalized = baseUrl?.trim() || "";
+  if (!client || normalized !== clientBaseUrl) {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) throw new Error("GROQ_API_KEY is not set");
-    client = new Groq({ apiKey });
+    client = new Groq({ apiKey, ...(normalized ? { baseURL: normalized } : {}) });
+    clientBaseUrl = normalized;
   }
   return client;
 }
 
 registerProviderReset(() => {
   client = null;
+  clientBaseUrl = "";
 });
 
 export async function* streamGroqAnswer(
@@ -24,7 +28,7 @@ export async function* streamGroqAnswer(
   question: string,
   interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
-  const groq = getClient();
+  const groq = getClient(interviewContext?.baseUrl);
   const userPrompt = buildUserPrompt(
     contextToString(context),
     question,

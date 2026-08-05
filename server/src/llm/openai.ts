@@ -5,18 +5,22 @@ import type { InterviewContext } from "./provider";
 import { registerProviderReset } from "../credentials";
 
 let client: OpenAI | null = null;
+let clientBaseUrl = "";
 
-function getClient(): OpenAI {
-  if (!client) {
+function getClient(baseUrl?: string): OpenAI {
+  const normalized = baseUrl?.trim() || "";
+  if (!client || normalized !== clientBaseUrl) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
-    client = new OpenAI({ apiKey });
+    client = new OpenAI({ apiKey, ...(normalized ? { baseURL: normalized } : {}) });
+    clientBaseUrl = normalized;
   }
   return client;
 }
 
 registerProviderReset(() => {
   client = null;
+  clientBaseUrl = "";
 });
 
 export async function* streamOpenAIAnswer(
@@ -24,7 +28,7 @@ export async function* streamOpenAIAnswer(
   question: string,
   interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
-  const openai = getClient();
+  const openai = getClient(interviewContext?.baseUrl);
   const userPrompt = buildUserPrompt(
     contextToString(context),
     question,

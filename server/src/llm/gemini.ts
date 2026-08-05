@@ -25,10 +25,14 @@ export async function* streamGeminiAnswer(
   interviewContext?: InterviewContext
 ): AsyncGenerator<string> {
   const genAI = getClient();
-  const model = genAI.getGenerativeModel({
-    model: interviewContext?.model || process.env.GEMINI_MODEL || "gemini-2.0-flash",
-    systemInstruction: buildSystemPrompt(interviewContext),
-  });
+  const normalized = interviewContext?.baseUrl?.trim() || "";
+  const model = genAI.getGenerativeModel(
+    {
+      model: interviewContext?.model || process.env.GEMINI_MODEL || "gemini-2.0-flash",
+      systemInstruction: buildSystemPrompt(interviewContext),
+    },
+    normalized ? { baseUrl: normalized } : undefined
+  );
 
   const userPrompt = buildUserPrompt(
     contextToString(context),

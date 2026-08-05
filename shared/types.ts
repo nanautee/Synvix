@@ -24,6 +24,9 @@ export interface SessionConfig {
   audioSource: AudioSource;
   position: string;
   techStack: string;
+  language: string;
+  llmBaseUrl: string;
+  sttBaseUrl: string;
 }
 
 export type ClientMessage =
@@ -69,6 +72,9 @@ export interface UserConfig {
   windowOpacity: number;
   position: string;
   techStack: string;
+  language: string;
+  llmBaseUrl: string;
+  sttBaseUrl: string;
 }
 
 export const DEFAULT_USER_CONFIG: UserConfig = {
@@ -87,6 +93,9 @@ export const DEFAULT_USER_CONFIG: UserConfig = {
   windowOpacity: 0.88,
   position: "",
   techStack: "",
+  language: "English",
+  llmBaseUrl: "",
+  sttBaseUrl: "",
 };
 
 export interface AudioDeviceInfo {
@@ -103,6 +112,67 @@ export const DEFAULT_SESSION_CONFIG: SessionConfig = {
   audioSource: "both",
   position: "",
   techStack: "",
+  language: "English",
+  llmBaseUrl: "",
+  sttBaseUrl: "",
+};
+
+export const LANGUAGES: string[] = [
+  "English",
+  "Russian",
+  "Ukrainian",
+  "Spanish",
+  "French",
+  "German",
+  "Italian",
+  "Portuguese",
+  "Dutch",
+  "Polish",
+  "Turkish",
+  "Arabic",
+  "Hindi",
+  "Chinese (Simplified)",
+  "Japanese",
+  "Korean",
+  "Hebrew",
+  "Indonesian",
+  "Czech",
+  "Swedish",
+  "Danish",
+  "Finnish",
+  "Norwegian",
+  "Greek",
+  "Romanian",
+  "Hungarian",
+];
+
+export const LANGUAGE_ISO: Record<string, string> = {
+  English: "en",
+  Russian: "ru",
+  Ukrainian: "uk",
+  Spanish: "es",
+  French: "fr",
+  German: "de",
+  Italian: "it",
+  Portuguese: "pt",
+  Dutch: "nl",
+  Polish: "pl",
+  Turkish: "tr",
+  Arabic: "ar",
+  Hindi: "hi",
+  "Chinese (Simplified)": "zh",
+  Japanese: "ja",
+  Korean: "ko",
+  Hebrew: "he",
+  Indonesian: "id",
+  Czech: "cs",
+  Swedish: "sv",
+  Danish: "da",
+  Finnish: "fi",
+  Norwegian: "no",
+  Greek: "el",
+  Romanian: "ro",
+  Hungarian: "hu",
 };
 
 export interface ModelInfo {

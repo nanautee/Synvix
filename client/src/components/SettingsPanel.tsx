@@ -4,6 +4,7 @@ import {
   LLM_MODELS,
   STT_MODELS,
   TIER_LABELS,
+  LANGUAGES,
   type LLMProvider,
   type STTProvider,
   type AudioSource,
@@ -74,6 +75,17 @@ export function SettingsPanel({ config, onChange, onSave, saving, saved }: Props
             ))}
           </SelectField>
         </div>
+        <label className="space-y-0.5 block">
+          <span className="text-[9px] text-white/40">Base URL — optional (e.g. OpenRouter)</span>
+          <input
+            type="text"
+            value={config.llmBaseUrl}
+            onChange={(e) => onChange({ llmBaseUrl: e.target.value })}
+            placeholder="https://openrouter.ai/api/v1"
+            className="synvix-input w-full text-[10px]"
+            autoComplete="off"
+          />
+        </label>
       </div>
 
       {/* STT Provider + Model */}
@@ -92,12 +104,28 @@ export function SettingsPanel({ config, onChange, onSave, saving, saved }: Props
             ))}
           </SelectField>
         </div>
+        <label className="space-y-0.5 block">
+          <span className="text-[9px] text-white/40">Base URL — optional</span>
+          <input
+            type="text"
+            value={config.sttBaseUrl}
+            onChange={(e) => onChange({ sttBaseUrl: e.target.value })}
+            placeholder="https://api.openai.com/v1"
+            className="synvix-input w-full text-[10px]"
+            autoComplete="off"
+          />
+        </label>
       </div>
 
       {/* Interview Context */}
       <div className="space-y-2">
         <p className="text-[9px] text-white/35 uppercase tracking-wider">Interview Context</p>
         <div className="space-y-1.5">
+          <SelectField label="Language" value={config.language} onChange={(v) => onChange({ language: v })}>
+            {LANGUAGES.map((l) => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </SelectField>
           <label className="space-y-0.5 block">
             <span className="text-[9px] text-white/40">Position / Role</span>
             <input

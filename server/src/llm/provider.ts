@@ -8,6 +8,8 @@ export interface InterviewContext {
   position?: string;
   techStack?: string;
   model?: string;
+  language?: string;
+  baseUrl?: string;
 }
 
 export async function* streamAnswer(
