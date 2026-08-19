@@ -48,6 +48,7 @@ export type ServerMessage =
   | { type: "answer_start"; provider: LLMProvider }
   | { type: "answer_token"; token: string }
   | { type: "answer_complete"; answer: AIAnswer }
+  | { type: "thinking"; active: boolean }
   | { type: "error"; message: string }
   | { type: "status"; listening: boolean; config?: SessionConfig };
 

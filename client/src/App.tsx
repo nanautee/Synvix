@@ -63,6 +63,7 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeProvider, setActiveProvider] = useState<LLMProvider | null>(null);
+  const [thinking, setThinking] = useState(false);
   const [userConfig, setUserConfig] = useState<UserConfig>(DEFAULT_USER_CONFIG);
   const [showSettings, setShowSettings] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -150,6 +151,9 @@ export default function App() {
           setIsGenerating(false);
           setAnswer(message.answer);
           setStreamingAnswer("");
+          break;
+        case "thinking":
+          setThinking(message.active);
           break;
         case "error":
           setError(message.message);
@@ -328,7 +332,7 @@ export default function App() {
         )}
 
         <TranscriptPanel messages={transcripts} pendingFragments={pendingFragments} />
-        <AnswerPanel answer={answer} streaming={streamingAnswer} isGenerating={isGenerating} />
+        <AnswerPanel answer={answer} streaming={streamingAnswer} isGenerating={isGenerating} thinking={thinking} />
 
         {listening && (
           <div className="shrink-0 flex gap-1.5">
@@ -357,7 +361,7 @@ export default function App() {
           connected={connected}
           electronAvailable={inElectron}
           onToggle={() => (listening ? stopListening() : startListening())}
-          onClear={() => { setTranscripts([]); setAnswer(null); setStreamingAnswer(""); setError(null); setPendingFragments([]); }}
+          onClear={() => { setTranscripts([]); setAnswer(null); setStreamingAnswer(""); setError(null); setPendingFragments([]); setThinking(false); }}
           onFlush={handleFlush}
           onScreenshot={handleScreenshot}
           onToggleSettings={() => setShowSettings((s) => !s)}

@@ -4,19 +4,24 @@ interface Props {
   answer: AIAnswer | null;
   streaming: string;
   isGenerating: boolean;
+  thinking: boolean;
 }
 
-export function AnswerPanel({ answer, streaming, isGenerating }: Props) {
+export function AnswerPanel({ answer, streaming, isGenerating, thinking }: Props) {
   const showStreaming = isGenerating && streaming;
 
   return (
     <section className="flex flex-col min-h-0 flex-[2]">
       <h2 className="text-[9px] font-semibold uppercase tracking-widest text-white/30 mb-1 px-0.5 flex items-center gap-1.5">
         Answer
+        {thinking && !isGenerating && <span className="w-1 h-1 bg-yellow-400 rounded-full animate-pulse" />}
         {isGenerating && <span className="w-1 h-1 bg-white rounded-full animate-pulse" />}
       </h2>
       <div className="selectable glass-panel flex-1 rounded-lg overflow-y-auto p-2.5 min-h-0 space-y-2">
-        {!answer && !showStreaming ? (
+        {thinking && !isGenerating && !answer && (
+          <p className="text-[10px] text-white/30 italic animate-pulse">Analyzing if this is a question…</p>
+        )}
+        {!thinking && !answer && !showStreaming ? (
           <p className="text-[10px] text-white/25 italic">AI answer appears here…</p>
         ) : (
           <>

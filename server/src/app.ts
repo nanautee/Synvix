@@ -6,6 +6,7 @@ import type { ClientMessage, ServerMessage, SessionConfig } from "@synvix/shared
 import { ContextBuilder } from "./context/context-builder";
 import { transcribe, validateSTTProvider } from "./stt/provider";
 import { streamAnswer, validateLLMProvider, type InterviewContext } from "./llm/provider";
+import { classifyText } from "./llm/classifier";
 import { parseAnswer } from "./answer-parser";
 import { mergeConfig, getProviderStatus } from "./config";
 import { applyCredentials } from "./credentials";
@@ -55,6 +56,7 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
         send(ws, { type: "transcript_flushed", text: event.text });
         context.addMessage("interviewer", event.text);
         send(ws, { type: "transcript", text: event.text, role: "interviewer", isFinal: true });
+
         const interviewContext: InterviewContext = {
           position: config.position,
           techStack: config.techStack,
@@ -62,10 +64,22 @@ export function createApp(port = Number(process.env.PORT) || 3001): AppInstance 
           language: config.language,
           baseUrl: config.llmBaseUrl,
         };
-        generateAndStreamAnswer(ws, context, event.text, config, interviewContext).catch((err) => {
-          const msg = err instanceof Error ? err.message : "LLM processing failed";
-          send(ws, { type: "error", message: msg });
-        });
+
+        send(ws, { type: "thinking", active: true });
+
+        classifyText(config.llmProvider, context.getMessages(), event.text, interviewContext)
+          .then((result) => {
+            send(ws, { type: "thinking", active: false });
+
+            if (result.isQuestion) {
+              return generateAndStreamAnswer(ws, context, event.text, config, interviewContext);
+            }
+          })
+          .catch((err) => {
+            send(ws, { type: "thinking", active: false });
+            const msg = err instanceof Error ? err.message : "LLM processing failed";
+            send(ws, { type: "error", message: msg });
+          });
       }
     };
 
