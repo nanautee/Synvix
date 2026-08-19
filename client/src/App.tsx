@@ -8,7 +8,7 @@ import type {
   LLMProvider,
   UserConfig,
 } from "@synvix/shared";
-import { DEFAULT_USER_CONFIG } from "@synvix/shared";
+import { DEFAULT_USER_CONFIG, LLM_MODELS } from "@synvix/shared";
 import { TranscriptPanel } from "./components/TranscriptPanel";
 import { AnswerPanel } from "./components/AnswerPanel";
 import { ControlBar } from "./components/ControlBar";
@@ -172,6 +172,27 @@ export default function App() {
   const handleConfigChange = (partial: Partial<UserConfig>) => {
     setUserConfig((c) => {
       const next = { ...c, ...partial };
+
+      // Auto-switch LLM provider when API key is entered for a different provider
+      const llmKeyMap: { provider: LLMProvider; field: keyof UserConfig }[] = [
+        { provider: "gemini", field: "geminiApiKey" },
+        { provider: "groq", field: "groqApiKey" },
+        { provider: "claude", field: "anthropicApiKey" },
+        { provider: "openai", field: "openaiApiKey" },
+      ];
+      const currentHasKey = llmKeyMap.some(
+        (m) => m.provider === c.llmProvider && typeof c[m.field] === "string" && (c[m.field] as string).trim()
+      );
+      if (!currentHasKey) {
+        for (const { provider, field } of llmKeyMap) {
+          if (provider !== c.llmProvider && typeof partial[field] === "string" && (partial[field] as string).trim()) {
+            next.llmProvider = provider;
+            next.llmModel = LLM_MODELS[provider][0]?.id || "";
+            break;
+          }
+        }
+      }
+
       if (partial.windowOpacity !== undefined) {
         getElectronAPI()?.setOpacity(partial.windowOpacity);
       }
