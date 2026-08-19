@@ -189,10 +189,9 @@ export const LLM_MODELS: Record<LLMProvider, ModelInfo[]> = {
     { id: "gemini-1.5-pro", label: "Gemini 1.5 Pro", tier: "powerful" },
   ],
   groq: [
-    { id: "llama-3.3-70b-versatile", label: "Llama 3.3 70B", tier: "powerful" },
-    { id: "llama-3.1-8b-instant", label: "Llama 3.1 8B", tier: "fast" },
-    { id: "mixtral-8x7b-32768", label: "Mixtral 8x7B", tier: "balanced" },
-    { id: "gemma2-9b-it", label: "Gemma 2 9B", tier: "fast" },
+    { id: "openai/gpt-oss-120b", label: "GPT OSS 120B", tier: "powerful" },
+    { id: "openai/gpt-oss-20b", label: "GPT OSS 20B", tier: "fast" },
+    { id: "qwen/qwen3.6-27b", label: "Qwen 3.6 27B", tier: "balanced" },
   ],
   claude: [
     { id: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet", tier: "powerful" },
@@ -212,7 +211,6 @@ export const STT_MODELS: Record<STTProvider, ModelInfo[]> = {
   groq: [
     { id: "whisper-large-v3-turbo", label: "Whisper Large v3 Turbo", tier: "fast" },
     { id: "whisper-large-v3", label: "Whisper Large v3", tier: "powerful" },
-    { id: "distil-whisper-large-v3-en", label: "Distil Whisper v3", tier: "fast" },
   ],
   openai: [
     { id: "whisper-1", label: "Whisper v1", tier: "balanced" },

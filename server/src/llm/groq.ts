@@ -36,7 +36,7 @@ export async function* streamGroqAnswer(
   );
 
   const stream = await groq.chat.completions.create({
-    model: interviewContext?.model || process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+    model: interviewContext?.model || process.env.GROQ_MODEL || "openai/gpt-oss-120b",
     messages: [
       { role: "system", content: buildSystemPrompt(interviewContext) },
       { role: "user", content: userPrompt },
