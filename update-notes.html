@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synvix v1.2.0 — Update Notes</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 640px;
+      width: 100%;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 4px 14px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .date {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 40px;
+    }
+
+    .section {
+      margin-bottom: 36px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .feature {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .feature-icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      margin-top: 1px;
+    }
+
+    .feature-content h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .feature-content p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.55;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .tag-new {
+      background: rgba(74,222,128,0.12);
+      color: rgba(74,222,128,0.8);
+      border: 1px solid rgba(74,222,128,0.2);
+    }
+
+    .tag-fix {
+      background: rgba(251,191,36,0.12);
+      color: rgba(251,191,36,0.8);
+      border: 1px solid rgba(251,191,36,0.2);
+    }
+
+    .tag-improved {
+      background: rgba(96,165,250,0.12);
+      color: rgba(96,165,250,0.8);
+      border: 1px solid rgba(96,165,250,0.2);
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.04);
+      margin: 36px 0;
+    }
+
+    .contact {
+      text-align: center;
+      padding: 32px 0;
+    }
+
+    .contact p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 8px;
+    }
+
+    .contact a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      transition: color 0.2s;
+    }
+
+    .contact a:hover {
+      color: #fff;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      padding: 3px 0;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    ul li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+      color: rgba(255,255,255,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">Release Notes</div>
+    <h1>Synvix v1.2.0</h1>
+    <p class="date">August 2025</p>
+
+    <div class="section">
+      <div class="section-title">New Features</div>
+
+      <div class="feature">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-content">
+          <h3>Question Classifier <span class="tag tag-new">New</span></h3>
+          <p>Synvix now understands the difference between an interviewer <em>asking a question</em> and just <em>talking</em>. When the interviewer explains something or gives instructions, the AI stays quiet — no more irrelevant answers flooding in during casual conversation.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-content">
+          <h3>Custom Base URLs <span class="tag tag-new">New</span></h3>
+          <p>Use any compatible API endpoint — OpenRouter, self-hosted models, or enterprise proxies. Set custom base URLs for both LLM and STT providers independently.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🗣️</div>
+        <div class="feature-content">
+          <h3>26 Languages <span class="tag tag-new">New</span></h3>
+          <p>Interview support expanded to 26 languages. Both speech-to-text transcription and AI answers now work in your native language — from English to Vietnamese.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Improvements</div>
+
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-content">
+          <h3>Auto-detect Provider <span class="tag tag-improved">Improved</span></h3>
+          <p>Enter a Groq API key — Synvix automatically switches to Groq. No more manually selecting the provider. The model resets correctly too.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-content">
+          <h3>Updated Model Lineup <span class="tag tag-improved">Improved</span></h3>
+          <p>Groq models updated to current API: GPT-OSS 120B, GPT-OSS 20B, and Qwen 3.6 27B replace the deprecated Llama lineup.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-content">
+          <h3>Server-side Validation <span class="tag tag-fix">Fix</span></h3>
+          <p>Added model validation on both client and server. The model always matches the selected provider — no more 404 errors from mismatched configs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">What's Next</div>
+      <ul>
+        <li>Download statistics for synvix.com</li>
+        <li>Community section on the website</li>
+        <li>Download links updated to v1.1.0</li>
+      </ul>
+    </div>
+
+    <div class="contact">
+      <p>Questions or feedback?</p>
+      <p><a href="mailto:synvix-admin@proton.me">synvix-admin@proton.me</a> · <a href="https://x.com/DeanBlunn">@DeanBlunn</a></p>
+    </div>
+  </div>
+</body>
+</html>
