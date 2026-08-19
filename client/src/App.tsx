@@ -193,6 +193,12 @@ export default function App() {
         }
       }
 
+      // Always validate model belongs to current provider
+      const validModels = LLM_MODELS[next.llmProvider]?.map((m) => m.id) || [];
+      if (!validModels.includes(next.llmModel)) {
+        next.llmModel = validModels[0] || "";
+      }
+
       if (partial.windowOpacity !== undefined) {
         getElectronAPI()?.setOpacity(partial.windowOpacity);
       }
